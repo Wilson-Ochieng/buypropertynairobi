@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html { scroll-behavior: smooth; }
+    body { @apply bg-cream text-ink antialiased; }
+    h1, h2, h3, h4 { @apply text-ink font-serif; }
+    a { @apply transition-colors duration-150; }
+}
+
+@layer components {
+    /* Buttons */
+    .btn-primary {
+        @apply inline-flex items-center justify-center px-5 py-3 rounded font-bold text-white transition;
+        background-image: linear-gradient(115deg, #b47c2f, #dda950);
+    }
+    .btn-primary:hover { filter: brightness(1.08); }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center px-5 py-3 rounded font-bold border border-gold text-gold-dark bg-transparent hover:bg-gold hover:text-white transition;
+    }
+
+    .btn-emerald {
+        @apply inline-flex items-center justify-center px-5 py-3 rounded font-bold bg-emerald text-white hover:bg-emerald-dark transition;
+    }
+
+    /* Sections */
+    .section { @apply py-16 md:py-20; }
+    .section-heading { @apply text-3xl md:text-4xl font-serif text-ink mb-3; }
+    .section-eyebrow { @apply text-xs uppercase tracking-[0.15em] font-bold text-gold-dark mb-2; }
+
+    /* Cards */
+    .card {
+        @apply bg-white border border-border-soft rounded-md overflow-hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px #122b2525;
+    }
+
+    /* Nav */
+    .nav-link {
+        @apply text-sm text-cream hover:text-gold transition-colors;
+    }
+    .nav-link-active {
+        @apply text-gold border-b-2 border-gold pb-1;
+    }
+
+    /* Stats */
+    .stat-value { @apply text-2xl md:text-3xl font-serif font-bold text-ink; }
+    .stat-label { @apply text-xs text-muted mt-1; }
+
+    /* Hero gradient */
+    .hero-gradient {
+        background-image: linear-gradient(90deg, rgba(0,69,54,0.92) 0%, rgba(0,53,40,0.69) 40%, rgba(0,0,0,0.05) 85%);
+    }
+}
+
+@layer utilities {
+    [x-cloak] { display: none !important; }
+}
