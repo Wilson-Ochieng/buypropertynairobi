@@ -12,6 +12,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\JobApplicationController;
+use App\Http\Controllers\PropertyController;
 
 
 
@@ -92,3 +93,9 @@ Route::get('/thank-you/{ref}', function ($ref) {
 Route::get('/careers/apply', [JobApplicationController::class, 'create'])->name('careers.apply');
 Route::post('/careers/apply', [JobApplicationController::class, 'store'])->name('careers.apply.store');
 Route::get('/careers/apply/thanks', [JobApplicationController::class, 'thanks'])->name('careers.apply.thanks');
+Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+Route::get('/properties/{property:slug}', [PropertyController::class, 'show'])->name('properties.show');
+
+// Optional: legacy redirects from /projects
+Route::get('/projects', fn () => redirect()->route('properties.index'))->name('projects.index');
+Route::get('/projects/{slug}', fn ($slug) => redirect("/properties/{$slug}"));

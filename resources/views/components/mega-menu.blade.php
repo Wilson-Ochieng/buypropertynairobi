@@ -1,8 +1,10 @@
 @props(['menu'])
 
 @php
-    $linkClass = 'flex items-center justify-between text-sm text-charcoal-soft hover:text-camel hover:bg-cream px-2 py-1 rounded transition';
-    $headingClass = 'text-[11px] uppercase tracking-wider font-semibold text-camel mb-2';
+    $purpose = $menu['purpose'];
+    $linkClass = 'flex items-center justify-between text-sm text-muted hover:text-gold-dark hover:bg-cream px-2 py-1.5 rounded transition';
+    $headingClass = 'text-[11px] uppercase tracking-wider font-semibold text-gold-dark mb-2 pb-1 border-b border-border-soft';
+    $countClass = 'text-xs text-muted/60 ml-2';
 @endphp
 
 @if(!empty($menu['has_data']))
@@ -16,10 +18,10 @@
                     <ul class="space-y-0.5">
                         @foreach($menu['locations'] as $name => $count)
                             <li>
-                               <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => Str::slug($name), 'by' => 'location']) }}"
+                                <a href="{{ route('properties.index', ['purpose' => $purpose, 'location' => $name]) }}"
                                     class="{{ $linkClass }}">
                                     <span>{{ $name }}</span>
-                                    <span class="text-xs text-charcoal-soft/60 ml-2">{{ $count }}</span>
+                                    <span class="{{ $countClass }}">{{ $count }}</span>
                                 </a>
                             </li>
                         @endforeach
@@ -32,12 +34,12 @@
                 <div class="flex-1 min-w-[160px]">
                     <div class="{{ $headingClass }}">Use</div>
                     <ul class="space-y-0.5">
-                        @foreach($menu['uses'] as $slug => $data)
+                        @foreach($menu['uses'] as $use)
                             <li>
-                               <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => Str::slug($data['name']), 'by' => 'use']) }}"
+                                <a href="{{ route('properties.index', ['purpose' => $purpose, 'use' => $use['slug']]) }}"
                                     class="{{ $linkClass }}">
-                                    <span>{{ $data['name'] }}</span>
-                                    <span class="text-xs text-charcoal-soft/60 ml-2">{{ $data['count'] }}</span>
+                                    <span>{{ $use['name'] }}</span>
+                                    <span class="{{ $countClass }}">{{ $use['count'] }}</span>
                                 </a>
                             </li>
                         @endforeach
@@ -45,44 +47,44 @@
                 </div>
             @endif
 
-            {{-- STYLE (with inline bedroom breakdown) --}}
-            @if(!empty($menu['styles']))
-                <div class="flex-1 min-w-[160px]">
-                    <div class="{{ $headingClass }}">Style</div>
+            {{-- CATEGORY (with bedroom flyout) --}}
+            @if(!empty($menu['categories']))
+                <div class="flex-1 min-w-[170px]">
+                    <div class="{{ $headingClass }}">Category</div>
                     <ul class="space-y-0.5">
-                        @foreach($menu['styles'] as $style)
-                            @php $styleSlug = $style['slug'] ?? Str::slug($style['name']); @endphp
+                        @foreach($menu['categories'] as $cat)
                             <li class="group">
-                               <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => $styleSlug, 'by' => 'style']) }}"
+                                <a href="{{ route('properties.index', ['purpose' => $purpose, 'category' => $cat['slug']]) }}"
                                     class="{{ $linkClass }}">
-                                    <span>{{ $style['name'] }}</span>
-                                    <span class="flex items-center gap-1 ml-2 text-xs text-charcoal-soft/60">
-                                        {{ $style['count'] }}
-                                        @if($style['flyout'])
+                                    <span>{{ $cat['name'] }}</span>
+                                    <span class="flex items-center gap-1 {{ $countClass }}">
+                                        {{ $cat['count'] }}
+                                        @if($cat['flyout'])
                                             <svg class="w-3 h-3 transition-transform group-hover:rotate-90 group-focus-within:rotate-90"
-                                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                                                aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                                             </svg>
                                         @endif
                                     </span>
                                 </a>
 
-                                @if($style['flyout'])
+                                @if($cat['flyout'])
                                     <ul
-                                        class="hidden group-hover:block group-focus-within:block ml-3 mt-0.5 mb-1 pl-2 border-l border-camel/30 space-y-0.5">
+                                        class="hidden group-hover:block group-focus-within:block ml-3 mt-0.5 mb-1 pl-2 border-l border-gold/30 space-y-0.5">
                                         <li>
-                                            <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => $styleSlug]) }}"
+                                            <a href="{{ route('properties.index', ['purpose' => $purpose, 'category' => $cat['slug']]) }}"
                                                 class="{{ $linkClass }} !text-xs">
-                                                <span>Any {{ $style['name'] }}</span>
-                                                <span class="text-charcoal-soft/60 ml-2">{{ $style['count'] }}</span>
+                                                <span>Any {{ $cat['name'] }}</span>
+                                                <span class="text-muted/60 ml-2">{{ $cat['count'] }}</span>
                                             </a>
                                         </li>
-                                        @foreach($style['bedrooms'] as $bed)
+                                        @foreach($cat['bedrooms'] as $bed)
                                             <li>
-                                                <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => $styleSlug, 'bedrooms' => $bed['value']]) }}"
+                                                <a href="{{ route('properties.index', ['purpose' => $purpose, 'category' => $cat['slug'], 'bedrooms' => $bed['value']]) }}"
                                                     class="{{ $linkClass }} !text-xs">
                                                     <span>{{ $bed['label'] }}</span>
-                                                    <span class="text-charcoal-soft/60 ml-2">{{ $bed['count'] }}</span>
+                                                    <span class="text-muted/60 ml-2">{{ $bed['count'] }}</span>
                                                 </a>
                                             </li>
                                         @endforeach
@@ -99,12 +101,15 @@
                 <div class="flex-1 min-w-[160px]">
                     <div class="{{ $headingClass }}">Budget</div>
                     <ul class="space-y-0.5">
-                        @foreach($menu['budgets'] as $id => $data)
+                        @foreach($menu['budgets'] as $budget)
                             <li>
-                               <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => $data['slug'], 'by' => 'budget']) }}"
-                                    class="{{ $linkClass }}">
-                                    <span>{{ $data['label'] }}</span>
-                                    <span class="text-xs text-charcoal-soft/60 ml-2">{{ $data['count'] }}</span>
+                                <a href="{{ route('properties.index', array_filter([
+                                    'purpose' => $purpose,
+                                    'min_price' => $budget['min'],
+                                    'max_price' => $budget['max'],
+                                ], fn ($v) => $v !== null)) }}" class="{{ $linkClass }}">
+                                    <span>{{ $budget['label'] }}</span>
+                                    <span class="{{ $countClass }}">{{ $budget['count'] }}</span>
                                 </a>
                             </li>
                         @endforeach
@@ -117,12 +122,12 @@
                 <div class="flex-1 min-w-[160px]">
                     <div class="{{ $headingClass }}">Type</div>
                     <ul class="space-y-0.5">
-                        @foreach($menu['types'] as $data)
+                        @foreach($menu['types'] as $type)
                             <li>
-                               <a href="{{ route('category-pages.show', ['purpose' => $menu['purpose'], 'slug' => $data['slug'] ?? Str::slug($data['name']), 'by' => 'type']) }}"
+                                <a href="{{ route('properties.index', ['purpose' => $purpose, 'type' => $type['slug']]) }}"
                                     class="{{ $linkClass }}">
-                                    <span>{{ $data['name'] }}</span>
-                                    <span class="text-xs text-charcoal-soft/60 ml-2">{{ $data['count'] }}</span>
+                                    <span>{{ $type['name'] }}</span>
+                                    <span class="{{ $countClass }}">{{ $type['count'] }}</span>
                                 </a>
                             </li>
                         @endforeach
@@ -130,14 +135,19 @@
                 </div>
             @endif
         </div>
+
+        <div class="mt-5 pt-3 border-t border-border-soft text-right">
+            <a href="{{ route('properties.index', ['purpose' => $purpose]) }}"
+                class="text-sm font-medium text-gold-dark hover:text-gold transition">
+                View all {{ $purpose === 'rent' ? 'rentals' : 'properties for sale' }} →
+            </a>
+        </div>
     </div>
 @else
     <div class="px-6 py-12 text-center">
-        <div class="text-sm text-charcoal-soft italic">
-          No properties {{ $menu['purpose'] === 'buy' ? 'for sale' : 'for rent' }} yet.
+        <div class="text-sm text-muted italic">
+            No properties {{ $purpose === 'rent' ? 'for rent' : 'for sale' }} yet.
         </div>
-        <p class="text-xs text-charcoal-soft/60 mt-2">
-            Listings will appear here as soon as they are added.
-        </p>
+        <p class="text-xs text-muted/60 mt-2">Listings will appear here as soon as they are added.</p>
     </div>
 @endif

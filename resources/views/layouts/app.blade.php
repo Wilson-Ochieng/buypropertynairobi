@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 @php
-    $megaMenu = app(\App\Services\MegaMenuService::class)->data();
-    $projectStatusMenu = app(\App\Services\MegaMenuService::class)->projectStatusMenu();
+    // Property-based mega menu — see the PropertyMegaMenuService note below
+    $megaMenu = app(\App\Services\PropertyMegaMenuService::class)->data();
+    $propertyStatusMenu = app(\App\Services\PropertyMegaMenuService::class)->statusMenu();
 
     $isHome = request()->routeIs('home');
-    $homeLit = $isHome ? 'true' : 'false';
 
     $baseLink = 'text-sm font-medium transition-colors whitespace-nowrap';
     $inactiveText = "'text-cream/90 hover:text-gold'";
@@ -28,10 +28,8 @@
     <meta name="description"
         content="@yield('meta_description', 'Explore premium property for sale and rent in Nairobi — Kilimani, Kileleshwa, Westlands and Karen. Buy Property Nairobi — property specialists.')">
 
-    {{-- SEO --}}
     <link rel="canonical" href="@yield('canonical', url()->current())">
 
-    {{-- Open Graph --}}
     <meta property="og:site_name" content="Buy Property Nairobi">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:title" content="@yield('title', 'Buy Property Nairobi — Premium Properties')">
@@ -41,19 +39,16 @@
     <meta property="og:image" content="@yield('og_image', asset('images/logo.png'))">
     <meta property="og:image:alt" content="@yield('title', 'Buy Property Nairobi')">
 
-    {{-- Twitter Card --}}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'Buy Property Nairobi')">
     <meta name="twitter:description"
         content="@yield('meta_description', 'Premium property for sale and rent in Nairobi.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/logo.png'))">
 
-    {{-- Robots --}}
     <meta name="robots" content="@yield('robots', 'index, follow')">
 
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
-    {{-- Hides Alpine-controlled elements until Alpine starts --}}
     <style>
         [x-cloak] {
             display: none !important;
@@ -76,13 +71,12 @@
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="flex items-center gap-3 shrink-0"
                     aria-label="Buy Property Nairobi">
-
                     <span class="bg-cream rounded-md p-1.5 shadow-sm">
                         <img src="{{ asset('images/logo.png') }}" alt="Buy Property Nairobi"
                             class="h-11 sm:h-12 w-auto object-contain">
                     </span>
-
                 </a>
+
                 {{-- Desktop Nav --}}
                 <nav class="hidden md:flex flex-1 items-center gap-2 lg:gap-4 ml-4 lg:ml-8 min-w-0">
 
@@ -97,7 +91,7 @@
                         @mouseleave="clearTimeout(timer); timer = setTimeout(() => open = false, 300)" class="shrink-0">
                         <button type="button" @click="open = !open"
                             class="{{ $baseLink }} inline-flex items-center gap-1"
-                            :class="{{ request()->query('purpose') === 'buy' ? $activeText : $inactiveText }}">
+                            :class="{{ request()->query('purpose') === 'sale' ? $activeText : $inactiveText }}">
                             Buy
                             <svg class="w-3.5 h-3.5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +99,6 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        {{-- dropdown content unchanged --}}
                         <div x-show="open" x-cloak @click.outside="open = false"
                             x-transition:enter="transition ease-out duration-150"
                             x-transition:enter-start="opacity-0 translate-y-1"
@@ -114,7 +107,7 @@
                             x-transition:leave-start="opacity-100 translate-y-0"
                             x-transition:leave-end="opacity-0 translate-y-1"
                             class="absolute top-full left-1/2 -translate-x-1/2 w-[920px] max-w-[95vw] bg-white border border-border-soft rounded-lg shadow-2xl z-50 overflow-hidden">
-                            @php($menu = array_merge($megaMenu['buy'], ['purpose' => 'buy']))
+                            @php($menu = array_merge($megaMenu['sale'], ['purpose' => 'sale']))
                             <x-mega-menu :menu="$menu" />
                         </div>
                     </div>
@@ -186,15 +179,15 @@
                         </div>
                     </div>
 
-                    {{-- PROJECTS --}}
+                    {{-- PROPERTIES (status → country mega menu) --}}
                     <div x-data="{ open: false, activeStatus: null, flip: false, timer: null, subTimer: null }"
                         @mouseenter="clearTimeout(timer); timer = setTimeout(() => open = true, 100)"
                         @mouseleave="clearTimeout(timer); timer = setTimeout(() => { open = false; activeStatus = null }, 300)"
                         class="relative shrink-0">
                         <button type="button" @click="open = !open"
                             class="{{ $baseLink }} inline-flex items-center gap-1"
-                            :class="{{ request()->routeIs('projects.*') || request()->query('status') ? $activeText : $inactiveText }}">
-                            Projects
+                            :class="{{ request()->routeIs('properties.*') || request()->query('status') ? $activeText : $inactiveText }}">
+                            Properties
                             <svg class="w-3.5 h-3.5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -209,11 +202,11 @@
                             x-transition:leave-start="opacity-100 translate-y-0"
                             x-transition:leave-end="opacity-0 translate-y-1" x-ref="dd"
                             class="absolute right-0 mt-2 w-72 max-w-[calc(100vw-1rem)] bg-white border border-border-soft rounded-lg shadow-xl py-2 z-50">
-                            @foreach($projectStatusMenu as $key => $status)
+                            @foreach($propertyStatusMenu as $key => $status)
                                 <div class="relative"
                                     @mouseenter="clearTimeout(subTimer); activeStatus = '{{ $key }}'; flip = $refs.dd.getBoundingClientRect().left < 240"
                                     @mouseleave="subTimer = setTimeout(() => activeStatus = null, 200)">
-                                    <a href="{{ route('projects.index', ['status' => $key]) }}"
+                                    <a href="{{ route('properties.index', ['status' => $key]) }}"
                                         class="flex items-center justify-between px-4 py-2.5 text-sm transition {{ $status['has_data'] ? 'text-muted hover:bg-cream hover:text-gold-dark' : 'text-muted/40 cursor-not-allowed pointer-events-none' }}">
                                         <span class="font-medium">{{ $status['label'] }}</span>
                                         <span class="flex items-center gap-2 text-xs text-muted/60">
@@ -239,13 +232,13 @@
                                             class="absolute top-0 w-56 bg-white border border-border-soft rounded-lg shadow-xl py-2 z-50">
                                             <div
                                                 class="px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-gold-dark border-b border-border-soft mb-1">
-                                                {{ $status['label'] }} by country
+                                                {{ $status['label'] }} by category
                                             </div>
-                                            @foreach($status['countries'] as $country)
-                                                <a href="{{ route('projects.index', ['status' => $key, 'country' => $country['slug']]) }}"
+                                            @foreach($status['categories'] as $category)
+                                                <a href="{{ route('properties.index', ['status' => $key, 'category' => $category['slug']]) }}"
                                                     class="flex items-center justify-between px-4 py-2 text-sm text-muted hover:bg-cream hover:text-gold-dark transition">
-                                                    <span>{{ $country['name'] }}</span>
-                                                    <span class="text-xs text-muted/60">{{ $country['count'] }}</span>
+                                                    <span>{{ $category['name'] }}</span>
+                                                    <span class="text-xs text-muted/60">{{ $category['count'] }}</span>
                                                 </a>
                                             @endforeach
                                         </div>
@@ -253,9 +246,9 @@
                                 </div>
                             @endforeach
                             <div class="border-t border-border-soft mt-2 pt-2">
-                                <a href="{{ route('projects.index') }}"
+                                <a href="{{ route('properties.index') }}"
                                     class="block px-4 py-2 text-sm font-medium text-gold-dark hover:bg-cream transition">
-                                    View all projects →
+                                    View all properties →
                                 </a>
                             </div>
                         </div>
@@ -306,7 +299,7 @@
                         </div>
                     </div>
 
-                    {{-- RIGHT-SIDE CTAs — NEVER SHRINK --}}
+                    {{-- RIGHT-SIDE CTAs --}}
                     <div class="ml-auto flex items-center gap-2 flex-shrink-0">
                         <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"
                             title="Chat on WhatsApp"
@@ -353,18 +346,18 @@
                         </svg>
                     </button>
                     <div x-show="open" x-cloak class="mt-2 pl-4 space-y-3 border-l border-gold/30">
-                        @if(!empty($megaMenu['buy']['locations']))
+                        @if(!empty($megaMenu['sale']['locations']))
                             <div>
                                 <div class="text-xs uppercase tracking-wider text-gold font-semibold mb-1">Location</div>
-                                @foreach($megaMenu['buy']['locations'] as $slug => $count)
-                                    <a href="{{ route('projects.index', ['purpose' => 'buy', 'location' => $slug]) }}"
+                                @foreach($megaMenu['sale']['locations'] as $slug => $count)
+                                    <a href="{{ route('properties.index', ['purpose' => 'sale', 'location' => $slug]) }}"
                                         class="block text-sm text-cream/75 hover:text-cream py-0.5">
                                         {{ $slug }} <span class="text-cream/40 text-xs">({{ $count }})</span>
                                     </a>
                                 @endforeach
                             </div>
                         @endif
-                        <a href="{{ route('projects.index', ['purpose' => 'buy']) }}"
+                        <a href="{{ route('properties.index', ['purpose' => 'sale']) }}"
                             class="block text-sm text-gold font-medium mt-2">View all for sale →</a>
                     </div>
                 </div>
@@ -385,25 +378,25 @@
                         @else
                             <div class="text-sm text-cream/60 italic">No rentals yet.</div>
                         @endif
-                        <a href="{{ route('projects.index', ['purpose' => 'rent']) }}"
+                        <a href="{{ route('properties.index', ['purpose' => 'rent']) }}"
                             class="block text-sm text-gold font-medium mt-2">View rentals →</a>
                     </div>
                 </div>
 
                 <a href="{{ route('about') }}" class="text-sm font-medium text-cream/85 hover:text-gold">About</a>
 
-                {{-- Mobile Projects --}}
+                {{-- Mobile Properties (status → category) --}}
                 <div x-data="{ open: false }">
                     <button type="button" @click="open = !open"
                         class="w-full text-left text-sm font-medium text-cream/85 hover:text-gold flex items-center justify-between">
-                        <span>Projects</span>
+                        <span>Properties</span>
                         <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <div x-show="open" x-cloak class="mt-2 pl-4 flex flex-col gap-2 border-l border-gold/30">
-                        @foreach($projectStatusMenu as $key => $status)
+                        @foreach($propertyStatusMenu as $key => $status)
                             <div x-data="{ sopen: false }">
                                 <button type="button" @click="sopen = !sopen" @if(!$status['has_data']) disabled @endif
                                     class="w-full flex items-center justify-between text-sm py-1 {{ $status['has_data'] ? 'text-cream/75 hover:text-cream' : 'text-cream/30 cursor-not-allowed' }}">
@@ -420,18 +413,18 @@
                                 </button>
                                 @if($status['has_data'])
                                     <div x-show="sopen" x-cloak class="pl-3 mt-1 flex flex-col gap-1 border-l border-cream/10">
-                                        @foreach($status['countries'] as $country)
-                                            <a href="{{ route('projects.index', ['status' => $key, 'country' => $country['slug']]) }}"
+                                        @foreach($status['categories'] as $category)
+                                            <a href="{{ route('properties.index', ['status' => $key, 'category' => $category['slug']]) }}"
                                                 class="text-xs text-cream/70 hover:text-cream py-0.5">
-                                                {{ $country['name'] }}
-                                                <span class="text-cream/40">({{ $country['count'] }})</span>
+                                                {{ $category['name'] }}
+                                                <span class="text-cream/40">({{ $category['count'] }})</span>
                                             </a>
                                         @endforeach
                                     </div>
                                 @endif
                             </div>
                         @endforeach
-                        <a href="{{ route('projects.index') }}"
+                        <a href="{{ route('properties.index') }}"
                             class="text-sm text-gold hover:text-cream font-medium pt-1">
                             View all →
                         </a>
@@ -484,6 +477,9 @@
                         <a href="{{ route('media.video-tours') }}" class="text-sm text-cream/75 hover:text-cream">Video
                             Tours</a>
                     </div>
+                </div>
+
+                <div class="flex items-center gap-3 mt-2">
                 </div>
 
                 <div class="flex items-center gap-3 mt-2">
