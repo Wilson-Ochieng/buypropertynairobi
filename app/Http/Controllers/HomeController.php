@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Country;
@@ -13,6 +14,11 @@ class HomeController extends Controller
     public function index()
     {
         $group = GroupInfo::current();
+
+        // Active homepage hero slides
+        $slides = HomeSlide::active()
+            ->orderBy('sort_order')
+            ->get();
 
         // Featured properties
         $featuredProjects = Project::with([
@@ -57,10 +63,11 @@ class HomeController extends Controller
 
         return view('home', compact(
             'group',
+            'slides',
             'featuredProjects',
             'offPlanProjects',
             'homeLocations',
-            'homeInsights',
+            'homeInsights'
         ));
     }
 }
