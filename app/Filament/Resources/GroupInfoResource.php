@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\GroupInfoResource\Pages;
@@ -13,7 +14,9 @@ class GroupInfoResource extends Resource
 {
     protected static ?string $model = GroupInfo::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    protected static ?string $navigationLabel = 'Group Info';
+    protected static ?string $navigationLabel = 'Company Info';
+    protected static ?string $modelLabel = 'Company Info';
+    protected static ?string $pluralModelLabel = 'Company Info';
     protected static ?string $navigationGroup = 'Content';
     protected static ?int $navigationSort = 1;
 
@@ -24,6 +27,11 @@ class GroupInfoResource extends Resource
     }
 
     public static function canDelete($record): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
     {
         return false;
     }
@@ -41,36 +49,38 @@ class GroupInfoResource extends Resource
     {
         return $form->schema([
             Forms\Components\Section::make('Hero')
+                ->description('Headline shown at the top of the About page.')
                 ->schema([
                     Forms\Components\TextInput::make('hero_title')
                         ->label('Hero Title')
+                        ->placeholder('Buy Property Nairobi')
+                        ->required()
                         ->maxLength(255),
                     Forms\Components\TextInput::make('hero_subtitle')
                         ->label('Hero Subtitle')
+                        ->placeholder('Premium properties. Trusted expertise. Brighter futures.')
                         ->maxLength(255),
                 ]),
 
-            Forms\Components\Section::make('Brand')
+            Forms\Components\Section::make('About')
+                ->description('Separate paragraphs with a blank line.')
                 ->schema([
                     Forms\Components\TextInput::make('brand_tenet')
-                        ->label('Brand Tenet')
+                        ->label('Tagline')
+                        ->placeholder('Premium properties. Trusted expertise. Brighter futures.')
                         ->maxLength(255),
                     Forms\Components\Textarea::make('intro_text')
                         ->label('Introduction Text')
-                        ->rows(12)
+                        ->rows(10)
                         ->columnSpanFull(),
                 ]),
 
-            Forms\Components\Section::make('Key Stats')
-                ->columns(3)
+            Forms\Components\Section::make('Company Snapshot')
+                ->description('Optional. Leave blank to hide.')
+                ->columns(2)
                 ->schema([
                     Forms\Components\TextInput::make('founded_year')->label('Founded Year'),
-                    Forms\Components\TextInput::make('registered_capital')->label('Registered Capital'),
-                    Forms\Components\TextInput::make('total_area')->label('Total Planned Area'),
-                    Forms\Components\TextInput::make('planned_homes')->label('Planned Homes'),
-                    Forms\Components\TextInput::make('hotels_count')->label('Four-Star Hotels'),
-                    Forms\Components\TextInput::make('hq_city')->label('Headquarters City'),
-                    Forms\Components\TextInput::make('origin_city')->label('Origin City'),
+                    Forms\Components\TextInput::make('hq_city')->label('Office Location')->placeholder('Nairobi, Kenya'),
                 ]),
         ]);
     }
@@ -79,8 +89,8 @@ class GroupInfoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('brand_tenet')->label('Brand Tenet')->limit(60),
-                Tables\Columns\TextColumn::make('founded_year')->label('Founded'),
+                Tables\Columns\TextColumn::make('hero_title')->label('Hero Title')->limit(40),
+                Tables\Columns\TextColumn::make('brand_tenet')->label('Tagline')->limit(60),
                 Tables\Columns\TextColumn::make('updated_at')->label('Updated')->since(),
             ])
             ->actions([
