@@ -152,7 +152,7 @@
             <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center mb-14">
                 <div class="order-1">
                     <div class="aspect-[4/3] rounded-lg overflow-hidden bg-emerald-dark/10 shadow-lg">
-                        <img src="{{ asset('images/about/values.jpg') }}" alt="Buy Property Nairobi — our values"
+                        <img src="{{ asset('images/about/values-circle.png') }}" alt="Buy Property Nairobi — our values"
                             onerror="this.remove()" class="w-full h-full object-cover" loading="lazy">
                     </div>
                 </div>
