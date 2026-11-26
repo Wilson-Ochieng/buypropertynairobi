@@ -79,6 +79,7 @@
                         @if($slide->image_path)
                             <img src="{{ asset('storage/' . $slide->image_path) }}" alt="{{ $alt }}"
                                 class="absolute inset-0 w-full h-full object-cover"
+                                style="filter: brightness(1.18) saturate(1.12) contrast(1.04);"
                                 loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
                                 @if($i === 0) fetchpriority="high" @endif>
                         @else
@@ -88,7 +89,8 @@
                         {{-- Poster shows until the video loads; iframe only mounts while its slide is active --}}
                         @if($slide->poster_path)
                             <img src="{{ asset('storage/' . $slide->poster_path) }}" alt="{{ $alt }}"
-                                class="absolute inset-0 w-full h-full object-cover -z-10">
+                                class="absolute inset-0 w-full h-full object-cover -z-10"
+                                style="filter: brightness(1.18) saturate(1.12);">
                         @endif
                         <div class="absolute inset-0 overflow-hidden">
                             <template x-if="current === {{ $i }}">
@@ -110,13 +112,11 @@
                         <div class="absolute inset-0 bg-emerald-dark"></div>
                     @endif
 
-                    {{-- OVERLAY: deep emerald at the top (keeps the header edge clean) and bottom (anchors the text), clear in the middle --}}
+                    {{-- OVERLAY: light touch so photos stay bright; a soft left-side shade keeps the text readable --}}
                     <div class="absolute inset-0 pointer-events-none"
-                        style="background-image: linear-gradient(to bottom,
-                            rgba(4, 47, 36, 0.70) 0%,
-                            rgba(4, 47, 36, 0.20) 30%,
-                            rgba(4, 47, 36, 0.10) 50%,
-                            rgba(4, 47, 36, 0.65) 100%);">
+                        style="background-image:
+                            linear-gradient(to right, rgba(4,47,36,0.55) 0%, rgba(4,47,36,0.18) 45%, rgba(4,47,36,0) 70%),
+                            linear-gradient(to bottom, rgba(4,47,36,0.30) 0%, rgba(4,47,36,0) 25%, rgba(4,47,36,0) 65%, rgba(4,47,36,0.35) 100%);">
                     </div>
                     <div class="absolute inset-x-0 bottom-0 h-px pointer-events-none bg-gradient-to-r from-transparent via-gold/70 to-transparent"
                         aria-hidden="true"></div>
@@ -124,20 +124,20 @@
                     {{-- CONTENT --}}
                     <div class="relative h-full flex items-center">
                         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-10">
-                            <div class="max-w-3xl">
+                            <div class="max-w-2xl">
                                 <p class="text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-gold mb-4"
                                     style="text-shadow: 0 1px 6px rgba(0,0,0,0.5);">
                                     Buy Property Nairobi
                                 </p>
                                 @if($slide->title)
-                                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif font-semibold leading-tight mb-4 text-white"
+                                    <h1 class="text-2xl md:text-4xl lg:text-5xl font-serif font-semibold leading-snug mb-4 text-white"
                                         style="text-shadow: 0 2px 12px rgba(0,0,0,0.55);">
                                         {{ $slide->title }}
                                     </h1>
                                 @endif
                                 @if($slide->subtitle)
-                                    <p class="text-lg md:text-xl text-white/90 max-w-2xl mb-8"
-                                        style="text-shadow: 0 1px 8px rgba(0,0,0,0.45);">
+                                    <p class="text-sm md:text-base font-light tracking-wide text-white/85 max-w-md mb-8 pl-4 border-l-2 border-gold leading-relaxed"
+                                        style="text-shadow: 0 1px 6px rgba(0,0,0,0.5);">
                                         {{ $slide->subtitle }}
                                     </p>
                                 @endif
