@@ -6,24 +6,18 @@
 
 @section('content')
 
-    @php
-        // Neighbourhood tiles come from the locations your admin data already has ($homeLocations).
-        $areas = collect($homeLocations ?? [])->filter()->unique()->take(6)->values();
-    @endphp
-
     {{-- ==================== 1. HERO SLIDER ==================== --}}
     <x-hero-slider :slides="$slides" />
 
-    {{-- ==================== 2. SEARCH BAR ==================== --}}
+    {{-- ==================== 2. SEARCH BAR (options come from your published properties) ==================== --}}
     <div class="relative z-10 mx-auto -mt-12 max-w-6xl px-4 sm:px-6 lg:px-8">
-        <form action="{{ route('projects.index') }}" method="GET"
+        <form action="{{ route('properties.index') }}" method="GET"
             class="overflow-hidden rounded-2xl border border-border-soft bg-white shadow-2xl">
 
-            {{-- Buy / Rent toggle --}}
             <div class="flex items-center justify-between border-b border-border-soft bg-cream/60 px-5 py-3">
                 <div class="inline-flex rounded-full bg-white p-1 shadow-inner ring-1 ring-border-soft">
                     <label class="cursor-pointer">
-                        <input type="radio" name="purpose" value="buy" class="peer sr-only" checked>
+                        <input type="radio" name="purpose" value="sale" class="peer sr-only" checked>
                         <span class="block rounded-full px-5 py-1.5 text-sm font-semibold text-muted transition peer-checked:bg-emerald-dark peer-checked:text-cream">Buy</span>
                     </label>
                     <label class="cursor-pointer">
@@ -34,13 +28,23 @@
                 <span class="hidden text-xs uppercase tracking-[0.25em] text-gold-dark sm:block">Find your property</span>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
                 <div>
                     <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-muted">Location</label>
                     <select name="location" class="w-full rounded-lg border-border-soft text-sm focus:border-gold focus:ring-gold">
                         <option value="">All Nairobi Areas</option>
                         @foreach($homeLocations as $loc)
                             <option value="{{ $loc }}">{{ $loc }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-muted">Type</label>
+                    <select name="type" class="w-full rounded-lg border-border-soft text-sm focus:border-gold focus:ring-gold">
+                        <option value="">All Types</option>
+                        @foreach($homeTypes as $type)
+                            <option value="{{ $type }}">{{ \Illuminate\Support\Str::headline($type) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -89,14 +93,14 @@
         </div>
     </div>
 
-    {{-- ==================== 4. FEATURED PROPERTIES ($featuredProjects) ==================== --}}
+    {{-- ==================== 4. FEATURED PROPERTIES ==================== --}}
     <x-section eyebrow="Featured Listings" title="Properties in Nairobi"
         subtitle="Explore premium apartments, villas, and investment properties across Nairobi's most desirable neighbourhoods.">
 
-        @if($featuredProjects->isNotEmpty())
+        @if($featuredProperties->isNotEmpty())
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-                @foreach($featuredProjects as $project)
-                    <x-project-card :project="$project" />
+                @foreach($featuredProperties as $property)
+                    <x-property-card :property="$property" />
                 @endforeach
             </div>
         @else
@@ -107,37 +111,37 @@
         @endif
 
         <div class="mt-12 text-center">
-            <a href="{{ route('projects.index', ['purpose' => 'buy']) }}" class="btn-secondary">
-                View All Properties →
-            </a>
+            <a href="{{ route('properties.index', ['purpose' => 'sale']) }}" class="btn-secondary">View All Properties →</a>
         </div>
     </x-section>
 
-    {{-- ==================== 5. EXPLORE LOCATIONS (from $homeLocations) ==================== --}}
-    @if($areas->isNotEmpty())
+    {{-- ==================== 5. EXPLORE LOCATIONS ==================== --}}
+    @if($neighbourhoods->isNotEmpty())
         <section class="border-y border-border-soft bg-cream-warm">
             <x-section eyebrow="Explore Nairobi" title="Prime Neighbourhoods"
                 subtitle="Find properties in Nairobi's most sought-after residential areas.">
 
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-                    @foreach($areas as $area)
-                        <a href="{{ route('category-pages.show', ['purpose' => 'buy', 'slug' => \Illuminate\Support\Str::slug($area), 'by' => 'location']) }}"
-                            class="group relative isolate flex h-40 items-end overflow-hidden rounded-xl bg-gradient-to-br from-emerald-dark to-emerald shadow-sm transition duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1">
-                            <div class="pointer-events-none absolute -right-8 -top-8 -z-10 h-28 w-28 rounded-full bg-gold/15 blur-2xl transition group-hover:bg-gold/30" aria-hidden="true"></div>
-                            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                            <span class="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent" aria-hidden="true"></span>
+                    @foreach($neighbourhoods as $area)
+                        <a href="{{ route('properties.index', ['purpose' => 'sale', 'location' => $area['location']]) }}"
+                            class="group relative isolate flex h-48 items-end overflow-hidden rounded-xl bg-emerald-dark shadow-sm transition duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1">
+                            @if($area['image'])
+                                <img src="{{ asset('storage/' . $area['image']) }}" alt="{{ $area['location'] }}" loading="lazy"
+                                    class="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-110">
+                            @endif
+                            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-emerald-dark/95 via-emerald-dark/40 to-transparent"></div>
                             <span class="p-4 text-cream">
-                                <span class="block font-serif text-lg transition group-hover:text-gold">{{ $area }}</span>
-                                <span class="mt-1 block text-xs text-cream/75">Explore →</span>
+                                <span class="block font-serif text-lg transition group-hover:text-gold">{{ $area['location'] }}</span>
+                                <span class="mt-1 block text-xs text-cream/75">
+                                    {{ $area['count'] }} {{ \Illuminate\Support\Str::plural('property', $area['count']) }} →
+                                </span>
                             </span>
                         </a>
                     @endforeach
                 </div>
 
                 <div class="mt-10 text-center">
-                    <a href="{{ route('projects.index', ['purpose' => 'buy']) }}" class="btn-secondary">
-                        View All Locations →
-                    </a>
+                    <a href="{{ route('properties.index', ['purpose' => 'sale']) }}" class="btn-secondary">View All Locations →</a>
                 </div>
             </x-section>
         </section>
@@ -168,26 +172,24 @@
         </x-section>
     </section>
 
-    {{-- ==================== 7. NEW DEVELOPMENTS ($offPlanProjects) ==================== --}}
-    @if($offPlanProjects->isNotEmpty())
+    {{-- ==================== 7. NEW DEVELOPMENTS ==================== --}}
+    @if($offPlanProperties->isNotEmpty())
         <x-section eyebrow="Off-Plan Opportunities" title="New Developments"
             subtitle="Secure early pricing on upcoming residential projects.">
 
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-                @foreach($offPlanProjects as $project)
-                    <x-project-card :project="$project" />
+                @foreach($offPlanProperties as $property)
+                    <x-property-card :property="$property" />
                 @endforeach
             </div>
 
             <div class="mt-12 text-center">
-                <a href="{{ route('projects.index', ['purpose' => 'buy', 'status' => 'off_plan']) }}" class="btn-secondary">
-                    View All Developments →
-                </a>
+                <a href="{{ route('properties.index', ['purpose' => 'sale', 'status' => 'off_plan']) }}" class="btn-secondary">View All Developments →</a>
             </div>
         </x-section>
     @endif
 
-    {{-- ==================== 8. INSIGHTS TEASER ($homeInsights) ==================== --}}
+    {{-- ==================== 8. INSIGHTS TEASER ==================== --}}
     @if($homeInsights->count())
         <section class="border-y border-border-soft bg-cream-warm">
             <x-section eyebrow="Guides & Market Notes" title="Property Insights"
@@ -197,16 +199,10 @@
                     @foreach($homeInsights as $insight)
                         <a href="{{ route('insights.show', $insight) }}"
                             class="card group flex flex-col p-6 transition duration-300 hover:shadow-lg motion-safe:hover:-translate-y-1">
-                            <div class="mb-2 text-xs font-medium uppercase tracking-widest text-gold-dark">
-                                {{ $insight->location }}
-                            </div>
-                            <div class="mb-2 font-serif text-lg font-semibold text-ink transition group-hover:text-gold-dark">
-                                {{ $insight->title }}
-                            </div>
+                            <div class="mb-2 text-xs font-medium uppercase tracking-widest text-gold-dark">{{ $insight->location }}</div>
+                            <div class="mb-2 font-serif text-lg font-semibold text-ink transition group-hover:text-gold-dark">{{ $insight->title }}</div>
                             @if($insight->summary)
-                                <div class="text-sm leading-relaxed text-muted">
-                                    {{ \Illuminate\Support\Str::limit($insight->summary, 120) }}
-                                </div>
+                                <div class="text-sm leading-relaxed text-muted">{{ \Illuminate\Support\Str::limit($insight->summary, 120) }}</div>
                             @endif
                             <span class="mt-auto pt-4 text-sm font-medium text-gold-dark">Read more →</span>
                         </a>
@@ -233,13 +229,9 @@
             </p>
             <div class="flex flex-wrap justify-center gap-3">
                 <a href="https://wa.me/254799934180?text={{ urlencode('Hi Buy Property Nairobi, please help me find a property.') }}"
-                    target="_blank" rel="noopener" class="btn-primary">
-                    Chat on WhatsApp →
-                </a>
+                    target="_blank" rel="noopener" class="btn-primary">Chat on WhatsApp →</a>
                 <a href="{{ route('contact') }}"
-                    class="inline-flex items-center justify-center rounded-md border border-gold px-5 py-3 font-bold text-gold transition hover:bg-gold hover:text-white">
-                    Contact Us
-                </a>
+                    class="inline-flex items-center justify-center rounded-md border border-gold px-5 py-3 font-bold text-gold transition hover:bg-gold hover:text-white">Contact Us</a>
             </div>
         </div>
     </section>

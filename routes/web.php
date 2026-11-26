@@ -97,5 +97,5 @@ Route::get('/properties', [PropertyController::class, 'index'])->name('propertie
 Route::get('/properties/{property:slug}', [PropertyController::class, 'show'])->name('properties.show');
 
 // Optional: legacy redirects from /projects
-Route::get('/projects', fn () => redirect()->route('properties.index'))->name('projects.index');
-Route::get('/projects/{slug}', fn ($slug) => redirect("/properties/{$slug}"));
+Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+Route::get('/properties/{property:slug}', [PropertyController::class, 'show'])->name('properties.show');

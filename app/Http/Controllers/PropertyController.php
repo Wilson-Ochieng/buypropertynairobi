@@ -28,17 +28,23 @@ class PropertyController extends Controller
         $location = $request->query('location');
         $category = $request->query('category');
         $bedrooms = $request->query('bedrooms');
+        $minPrice = $request->query('min_price');
         $maxPrice = $request->query('max_price');
+        $type = $request->query('type');
+        $use = $request->query('use');
 
-        $properties = Property::with(['country', 'images', 'videos' => fn($q) => $q->published()])
+        $properties = Property::with(['country', 'images', 'videos' => fn ($q) => $q->published()])
             ->published()
-            ->when($activeCountry, fn($q) => $q->where('country_id', $activeCountry->id))
+            ->when($activeCountry, fn ($q) => $q->where('country_id', $activeCountry->id))
             ->byStatus($status)
             ->inLocation($location)
             ->byCategory($category)
             ->byPurpose($purpose)
             ->minBedrooms($bedrooms)
             ->maxPrice($maxPrice)
+            ->when($minPrice, fn ($q) => $q->where('price_kes', '>=', $minPrice))
+            ->when($type, fn ($q) => $q->where('property_type', $type))
+            ->when($use, fn ($q) => $q->whereHas('useCategory', fn ($u) => $u->where('slug', $use)))
             ->orderBy('sort_order')
             ->paginate(12)
             ->withQueryString();
@@ -62,7 +68,7 @@ class PropertyController extends Controller
             'country',
             'images',
             'highlights',
-            'videos' => fn($q) => $q->published(),
+            'videos' => fn ($q) => $q->published(),
         ]);
 
         $related = Property::published()
