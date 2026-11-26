@@ -52,10 +52,10 @@ class User extends Authenticatable implements FilamentUser // ADD
     /**
      * Who may enter the Filament admin panel (enforced in production).
      */
-    public function canAccessPanel(Panel $panel): bool // ADD
-    {
-        return in_array(strtolower($this->email), [
-            'admin@nanchonggroup.test', // <- replace with your real admin email, lowercase
-        ], true);
-    }
+  public function canAccessPanel(Panel $panel): bool
+{
+    return in_array(strtolower($this->email), [
+        'admin@buypropertynairobi.test',
+    ], true);
+}
 }
