@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Work With Us — Nanchong Group')
-@section('meta_description', 'Join Nanchong Group — careers in real estate sales, property management, construction, and marketing in Kenya and China.')
+@section('title', 'Work With Us — Buy Property Nairobi')
+@section('meta_description', 'Explore career opportunities with Buy Property Nairobi in real estate sales, property management, marketing, and customer service across Kenya.')
 
 @section('content')
 
@@ -11,10 +11,10 @@
             <div class="max-w-3xl">
                 <div class="text-sm uppercase tracking-widest text-charcoal-soft mb-3">Work With Us</div>
                 <h1 class="text-4xl md:text-6xl font-semibold leading-tight mb-4">
-                    Build Your Career With Nanchong
+                    Build Your Career With Buy Property Nairobi
                 </h1>
                 <p class="text-lg md:text-xl text-charcoal-soft max-w-2xl mb-8">
-                    {{ $group->careers_intro ?? 'Nanchong Group is growing — in China and in Kenya. We\'re always looking for talented people in real estate sales, property management, construction, and marketing to join our team.' }}
+                    {{ $group->careers_intro ?? 'Buy Property Nairobi is growing. We welcome talented and motivated people interested in real estate, property sales, marketing, customer service, and property management to join our team.' }}
                 </p>
                 <div class="flex flex-wrap gap-3">
                     @if(\App\Models\JobListing::active()->exists())
@@ -42,13 +42,13 @@
                             target="{{ str_starts_with($group->careers_advert_url, 'http') ? '_blank' : '_self' }}"
                             rel="{{ str_starts_with($group->careers_advert_url, 'http') ? 'noopener' : '' }}" class="block group">
                             <div class="rounded-lg overflow-hidden bg-ash-grey">
-                                <img src="{{ asset('storage/' . $group->careers_advert_image) }}" alt="Work with Nanchong Group"
+                                <img src="{{ asset('storage/' . $group->careers_advert_image) }}" alt="Work with Buy Property Nairobi"
                                     class="w-full h-auto group-hover:scale-[1.02] transition-transform duration-300">
                             </div>
                         </a>
                     @else
                         <div class="rounded-lg overflow-hidden bg-ash-grey">
-                            <img src="{{ asset('storage/' . $group->careers_advert_image) }}" alt="Work with Nanchong Group"
+                            <img src="{{ asset('storage/' . $group->careers_advert_image) }}" alt="Work with Buy Property Nairobi"
                                 class="w-full h-auto">
                         </div>
                     @endif
@@ -58,19 +58,19 @@
             {{-- Intro text --}}
             <div class="{{ $group && $group->careers_advert_image ? 'lg:col-span-1' : 'lg:col-span-3' }} space-y-6">
                 <div class="bg-white border border-stone-line rounded-lg p-6">
-                    <h2 class="text-lg font-semibold text-charcoal mb-3">Why Join Nanchong Group</h2>
+                    <h2 class="text-lg font-semibold text-charcoal mb-3">Why Join Buy Property Nairobi</h2>
                     <div class="space-y-3 text-sm text-charcoal-soft leading-relaxed">
                         <p>
-                            Nanchong Group is a growing international real estate developer operating across China and
-                            Kenya. Since 2010, we've built a reputation for quality, integrity, and long-term thinking.
+                            Buy Property Nairobi connects people with property opportunities and supports clients through
+                            their property search and buying journey.
                         </p>
                         <p>
-                            Our team of over 300 professionals works across five integrated sectors — real estate, hotels,
-                            construction, property management, and landscaping.
+                            We value professionalism, clear communication, integrity, and a customer-focused approach
+                            to real estate.
                         </p>
                         <p>
-                            We don't always have openings listed, but we welcome your CV. If you're passionate about
-                            building better homes and creating communities, we'd love to hear from you.
+                            We may not always have vacancies listed, but we welcome applications from people who are
+                            passionate about real estate and helping clients make informed property decisions.
                         </p>
                     </div>
                 </div>
@@ -99,8 +99,8 @@
                     </div>
                     <h3 class="text-xl font-semibold text-charcoal mb-2">No open positions right now</h3>
                     <p class="text-sm text-charcoal-soft mb-6 max-w-md mx-auto">
-                        We don't have any active job listings at the moment. But we're always interested in meeting talented
-                        people — send us your CV and we'll keep it on file.
+                        We don't have any active job listings at the moment. However, we're happy to hear from talented
+                        people — submit your CV and we'll review it when suitable opportunities arise.
                     </p>
                     <div class="flex flex-wrap gap-2 justify-center">
                         <a href="{{ route('careers.apply') }}" class="btn-primary text-sm">
@@ -179,7 +179,7 @@
                 <h2 class="text-2xl font-semibold text-charcoal mb-3">Don't see a role for you?</h2>
                 <p class="text-charcoal-soft mb-6">
                     We don't always have openings listed, but we welcome your CV. Submit a general application and we'll
-                    keep it on file.
+                    review it when suitable opportunities arise.
                 </p>
                 <div class="flex flex-wrap gap-3">
                     <a href="{{ route('careers.apply') }}" class="btn-primary">
@@ -188,10 +188,6 @@
                     @if($group && $group->careers_cta_email)
                         <a href="mailto:{{ $group->careers_cta_email }}?subject=Career Enquiry" class="btn-secondary">
                             Or email {{ $group->careers_cta_email }}
-                        </a>
-                    @else
-                        <a href="mailto:careers@nanchonginternational.com?subject=Career Enquiry" class="btn-secondary">
-                            Or email careers@nanchonginternational.com
                         </a>
                     @endif
                 </div>
