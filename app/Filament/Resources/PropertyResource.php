@@ -12,6 +12,7 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class PropertyResource extends Resource
@@ -32,8 +33,9 @@ class PropertyResource extends Resource
                         Forms\Components\TextInput::make('title')
                             ->required()->maxLength(255)->live(onBlur: true)
                             ->afterStateUpdated(function (string $operation, $state, Set $set) {
-                                if ($operation === 'create')
-                                    $set('slug', Str::slug($state));
+                                if ($operation === 'create') {
+                                    $set('slug', Str::slug((string) $state));
+                                }
                             }),
 
                         Forms\Components\TextInput::make('slug')
@@ -48,21 +50,15 @@ class PropertyResource extends Resource
                             ->searchable()->preload(),
 
                         Forms\Components\Select::make('category')
-                            ->options(['residential' => 'Residential', 'commercial' => 'Commercial', 'land' => 'Land'])
+                            ->options(self::categoryOptions())
                             ->default('residential')->required()->native(false),
 
                         Forms\Components\Select::make('purpose')
-                            ->options(['sale' => 'For Sale', 'rent' => 'For Rent', 'both' => 'Both'])
+                            ->options(self::purposeOptions())
                             ->default('sale')->required()->native(false),
 
                         Forms\Components\Select::make('status')
-                            ->options([
-                                'available' => 'Available',
-                                'sold' => 'Sold',
-                                'rented' => 'Rented',
-                                'off_plan' => 'Off-Plan',
-                                'under_construction' => 'Under Construction',
-                            ])
+                            ->options(self::statusOptions())
                             ->default('available')->required()->native(false),
 
                         Forms\Components\TextInput::make('property_type')
@@ -84,7 +80,7 @@ class PropertyResource extends Resource
                         Forms\Components\Toggle::make('price_negotiable')->label('Price negotiable'),
 
                         Forms\Components\TextInput::make('location')
-                            ->label('Location')->placeholder('Westlands, Nairobi')
+                            ->label('Location')->placeholder('Westlands')
                             ->required(),
 
                         Forms\Components\TextInput::make('city')->maxLength(255),
@@ -162,8 +158,8 @@ class PropertyResource extends Resource
 
                         Forms\Components\TextInput::make('video_url')
                             ->label('Video URL')
-                            ->visible(fn(Get $get) => in_array($get('type'), ['youtube', 'vimeo']))
-                            ->required(fn(Get $get) => in_array($get('type'), ['youtube', 'vimeo']))
+                            ->visible(fn (Get $get) => in_array($get('type'), ['youtube', 'vimeo']))
+                            ->required(fn (Get $get) => in_array($get('type'), ['youtube', 'vimeo']))
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                 $type = $get('type');
@@ -175,13 +171,13 @@ class PropertyResource extends Resource
 
                         Forms\Components\TextInput::make('video_id')
                             ->label('Video ID (auto-extracted)')->readOnly()
-                            ->visible(fn(Get $get) => in_array($get('type'), ['youtube', 'vimeo']))
+                            ->visible(fn (Get $get) => in_array($get('type'), ['youtube', 'vimeo']))
                             ->columnSpanFull(),
 
                         Forms\Components\FileUpload::make('video_path')
                             ->label('Upload video (MP4)')
-                            ->visible(fn(Get $get) => $get('type') === 'mp4')
-                            ->required(fn(Get $get) => $get('type') === 'mp4')
+                            ->visible(fn (Get $get) => $get('type') === 'mp4')
+                            ->required(fn (Get $get) => $get('type') === 'mp4')
                             ->directory('properties/videos')->disk('public')->visibility('public')
                             ->acceptedFileTypes(['video/mp4', 'video/webm'])->maxSize(51200)
                             ->columnSpanFull(),
@@ -206,10 +202,9 @@ class PropertyResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn($q) => $q->with(['country'])->withCount(['images', 'videos']))
             ->columns([
                 Tables\Columns\ImageColumn::make('cover_image')->label('Cover')
-                    ->circular(false)->height(48)->width(64),
+                    ->disk('public')->circular(false)->height(48)->width(64),
 
                 Tables\Columns\TextColumn::make('title')->searchable()->sortable()->weight('semibold'),
 
@@ -217,23 +212,34 @@ class PropertyResource extends Resource
 
                 Tables\Columns\TextColumn::make('location')->searchable()->sortable()->toggleable(),
 
-                Tables\Columns\BadgeColumn::make('category')
-                    ->colors(['success' => 'residential', 'warning' => 'commercial', 'info' => 'land']),
+                Tables\Columns\TextColumn::make('category')->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'residential' => 'success',
+                        'commercial' => 'warning',
+                        'land' => 'info',
+                        default => 'gray',
+                    }),
 
-                Tables\Columns\BadgeColumn::make('purpose')
-                    ->colors(['primary' => 'sale', 'success' => 'rent', 'gray' => 'both']),
+                Tables\Columns\TextColumn::make('purpose')->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'sale' => 'primary',
+                        'rent' => 'success',
+                        default => 'gray',
+                    }),
 
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'success' => 'available',
-                        'danger' => 'sold',
-                        'gray' => 'rented',
-                        'info' => 'off_plan',
-                        'warning' => 'under_construction',
-                    ]),
+                Tables\Columns\TextColumn::make('status')->badge()
+                    ->formatStateUsing(fn (?string $state): string => self::statusOptions()[$state] ?? ucfirst((string) $state))
+                    ->color(fn (?string $state): string => match ($state) {
+                        'available' => 'success',
+                        'sold' => 'danger',
+                        'rented' => 'gray',
+                        'off_plan' => 'info',
+                        'under_construction' => 'warning',
+                        default => 'gray',
+                    }),
 
                 Tables\Columns\TextColumn::make('price_kes')->label('Price')
-                    ->money('KES', divideBy: 1)->sortable()->toggleable(),
+                    ->money('KES')->sortable()->toggleable(),
 
                 Tables\Columns\TextColumn::make('bedrooms')->numeric()->toggleable(),
 
@@ -254,20 +260,11 @@ class PropertyResource extends Resource
                 Tables\Filters\SelectFilter::make('country_id')
                     ->label('Country')->relationship('country', 'name'),
 
-                Tables\Filters\SelectFilter::make('category')
-                    ->options(['residential' => 'Residential', 'commercial' => 'Commercial', 'land' => 'Land']),
+                Tables\Filters\SelectFilter::make('category')->options(self::categoryOptions()),
 
-                Tables\Filters\SelectFilter::make('purpose')
-                    ->options(['sale' => 'For Sale', 'rent' => 'For Rent', 'both' => 'Both']),
+                Tables\Filters\SelectFilter::make('purpose')->options(self::purposeOptions()),
 
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'available' => 'Available',
-                        'sold' => 'Sold',
-                        'rented' => 'Rented',
-                        'off_plan' => 'Off-Plan',
-                        'under_construction' => 'Under Construction',
-                    ]),
+                Tables\Filters\SelectFilter::make('status')->options(self::statusOptions()),
 
                 Tables\Filters\TernaryFilter::make('is_published')->label('Published'),
                 Tables\Filters\TernaryFilter::make('is_featured')->label('Featured'),
@@ -283,12 +280,42 @@ class PropertyResource extends Resource
             ]);
     }
 
+    /** Eager-load here instead of using a closure on the table (no closure = nothing to resolve). */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['country'])
+            ->withCount(['images', 'videos']);
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListProperties::route('/'),
             'create' => Pages\CreateProperty::route('/create'),
             'edit' => Pages\EditProperty::route('/{record}/edit'),
+        ];
+    }
+
+    /** Shared option lists */
+    protected static function categoryOptions(): array
+    {
+        return ['residential' => 'Residential', 'commercial' => 'Commercial', 'land' => 'Land'];
+    }
+
+    protected static function purposeOptions(): array
+    {
+        return ['sale' => 'For Sale', 'rent' => 'For Rent', 'both' => 'Both'];
+    }
+
+    protected static function statusOptions(): array
+    {
+        return [
+            'available' => 'Available',
+            'sold' => 'Sold',
+            'rented' => 'Rented',
+            'off_plan' => 'Off-Plan',
+            'under_construction' => 'Under Construction',
         ];
     }
 }
