@@ -7,7 +7,7 @@
 @section('content')
 
     {{-- ==================== 1. HERO SLIDER ==================== --}}
-    <x-hero-slide :slides="$slides" />
+    <x-hero-slider :slides="$slides ?? collect()" />
     {{-- ==================== 2. SEARCH BAR ==================== --}}
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
         <form action="{{ route('projects.index') }}" method="GET"
